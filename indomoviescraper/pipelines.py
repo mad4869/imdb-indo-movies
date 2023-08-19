@@ -9,6 +9,7 @@ from itemadapter import ItemAdapter
 import sqlite3
 import json
 import logging
+import re
 
 
 class IndomoviescraperPipeline:
@@ -22,23 +23,27 @@ class IndomoviescraperPipeline:
 
         # Remove title, description whitespace
         title = adapter.get("title")
-        if title is not None:
+        if title:
             new_title = title.strip()
             adapter["title"] = new_title
         desc = adapter.get("description")
-        if desc is not None:
+        if desc:
             new_desc = desc.strip()
             adapter["description"] = new_desc
 
         # Remove year parenthesis
         year = adapter.get("year")
-        if year is not None:
-            new_year = year.strip("()")
+        if year:
+            years = re.findall(r"(\d{4})", year)
+            if len(years) == 1:
+                new_year = "".join(years)
+            else:
+                new_year = "-".join(years)
             adapter["year"] = new_year
 
         # Convert runtime to integer
         runtime = adapter.get("runtime")
-        if runtime is not None:
+        if runtime:
             new_runtime = runtime.split(" ")[0]
             runtime_int = int(new_runtime)
             adapter["runtime"] = runtime_int
@@ -46,20 +51,20 @@ class IndomoviescraperPipeline:
         # Remove genre whitespace
         # Turn text into list
         genre = adapter.get("genre")
-        if genre is not None:
+        if genre:
             new_genre = genre.strip()
             genre_list = new_genre.split(", ")
             adapter["genre"] = genre_list
 
         # Turn IMDB score into float
         imdb_score = adapter.get("imdb_score")
-        if imdb_score is not None:
+        if imdb_score:
             imdb_score_float = float(imdb_score)
             adapter["imdb_score"] = imdb_score_float
 
         # Turn Metascore into integer
         metascore = adapter.get("metascore")
-        if metascore is not None:
+        if metascore:
             metascore_int = int(metascore)
             adapter["metascore"] = metascore_int
 
