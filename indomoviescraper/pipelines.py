@@ -20,7 +20,11 @@ class IndomoviescraperPipeline:
         movie_url = adapter.get("url")
         adapter["url"] = MAIN_URL + movie_url
 
-        # Remove description whitespace
+        # Remove title, description whitespace
+        title = adapter.get("title")
+        if title is not None:
+            new_title = title.strip()
+            adapter["title"] = new_title
         desc = adapter.get("description")
         if desc is not None:
             new_desc = desc.strip()
@@ -29,7 +33,7 @@ class IndomoviescraperPipeline:
         # Remove year parenthesis
         year = adapter.get("year")
         if year is not None:
-            new_year = year.strip("(-)")
+            new_year = year.strip("()")
             adapter["year"] = new_year
 
         # Convert runtime to integer
@@ -64,6 +68,7 @@ class IndomoviescraperPipeline:
         if gross is not None:
             new_gross = gross.strip("$M")
             gross_num = int(float(new_gross) * 1_000_000)
+            adapter["gross"] = gross_num
 
         return item
 
@@ -106,8 +111,8 @@ class SaveToDBPipeline:
             if result:
                 spider.logger.warn(f'This title "{item["title"]}" already exists')
             else:
-                item["genre"] = json.dumps(item["genre"])
-                item["stars"] = json.dumps(item["stars"])
+                genre = json.dumps(item["genre"])
+                stars = json.dumps(item["stars"])
 
                 self.cur.execute(
                     """
@@ -145,9 +150,9 @@ class SaveToDBPipeline:
                         item["year"],
                         item["url"],
                         item["runtime"],
-                        item["genre"],
+                        genre,
                         item["director"],
-                        item["stars"],
+                        stars,
                         item["rating"],
                         item["imdb_score"],
                         item["metascore"],
