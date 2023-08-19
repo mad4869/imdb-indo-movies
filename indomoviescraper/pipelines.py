@@ -70,7 +70,7 @@ class IndomoviescraperPipeline:
 
         # Turn gross into real number
         gross = adapter.get("gross")
-        if gross is not None:
+        if gross:
             new_gross = gross.strip("$M")
             gross_num = int(float(new_gross) * 1_000_000)
             adapter["gross"] = gross_num

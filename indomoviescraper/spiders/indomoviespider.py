@@ -47,7 +47,7 @@ class IndomovieSpider(scrapy.Spider):
             yield item
 
         next_page = response.css("a.lister-page-next.next-page::attr(href)").get()
-        if next_page is not None:
+        if next_page:
             MAIN_URL = "https://www.imdb.com"
             next_page_url = MAIN_URL + next_page
 
