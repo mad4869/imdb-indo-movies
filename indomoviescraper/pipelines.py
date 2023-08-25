@@ -62,6 +62,13 @@ class IndomoviescraperPipeline:
             imdb_score_float = float(imdb_score)
             adapter["imdb_score"] = imdb_score_float
 
+        # Turn IMDB votes into integer
+        imdb_votes = adapter.get("imdb_votes")
+        if imdb_votes:
+            imdb_votes_str = imdb_votes.replace(",", "")
+            imdb_votes_int = int(imdb_votes_str)
+            adapter["imdb_votes"] = imdb_votes_int
+
         # Turn Metascore into integer
         metascore = adapter.get("metascore")
         if metascore:
@@ -94,10 +101,11 @@ class SaveToDBPipeline:
                     url VARCHAR(255),
                     runtime INTEGER,
                     genre TEXT,
-                    director VARCHAR(255),
+                    director TEXT,
                     stars TEXT,
                     rating VARCHAR(50),
                     imdb_score REAL,
+                    imdb_votes INTEGER,
                     metascore INTEGER,
                     gross INTEGER
                 )
@@ -117,6 +125,7 @@ class SaveToDBPipeline:
                 spider.logger.warn(f'This title "{item["title"]}" already exists')
             else:
                 genre = json.dumps(item["genre"])
+                director = json.dumps(item["director"])
                 stars = json.dumps(item["stars"])
 
                 self.cur.execute(
@@ -132,9 +141,11 @@ class SaveToDBPipeline:
                         stars,
                         rating,
                         imdb_score,
+                        imdb_votes,
                         metascore,
                         gross
                     ) VALUES(
+                        ?,
                         ?,
                         ?,
                         ?,
@@ -156,10 +167,11 @@ class SaveToDBPipeline:
                         item["url"],
                         item["runtime"],
                         genre,
-                        item["director"],
+                        director,
                         stars,
                         item["rating"],
                         item["imdb_score"],
+                        item["imdb_votes"],
                         item["metascore"],
                         item["gross"],
                     ),

@@ -19,16 +19,26 @@ class IndomovieSpider(scrapy.Spider):
             item["description"] = movie.xpath(
                 ".//p[contains(text(), 'Director') or contains(text(), 'Stars')]/preceding-sibling::p[1]/text()"
             ).get()
-            item["director"] = movie.xpath(
-                ".//p[contains(text(), 'Director')]/a[following-sibling::span[@class='ghost']]/text()"
-            ).getall()
 
-            if item["director"]:
+            sep = movie.xpath(
+                ".//p[contains(text(), 'Director')]/span[@class='ghost']"
+            ).get()
+
+            if sep:
+                item["director"] = movie.xpath(
+                    ".//p[contains(text(), 'Director')]/a[following-sibling::span[@class='ghost']]/text()"
+                ).getall()
+
                 director_count = len(item["director"])
+
                 item["stars"] = movie.xpath(
                     f".//p[contains(text(), 'Director')]/a[position() > {director_count}]/text()"
                 ).getall()
             else:
+                item["director"] = movie.xpath(
+                    ".//p[contains(text(), 'Director')]/a/text()"
+                ).getall()
+
                 item["stars"] = movie.xpath(
                     ".//p[contains(text(), 'Stars')]/a/text()"
                 ).getall()
@@ -38,6 +48,9 @@ class IndomovieSpider(scrapy.Spider):
             item["genre"] = movie.css(".genre::text").get()
             item["rating"] = movie.css(".certificate::text").get()
             item["imdb_score"] = movie.css(".ratings-imdb-rating strong::text").get()
+            item["imdb_votes"] = movie.xpath(
+                ".//span[contains(text(), 'Votes')]/following-sibling::span[@name='nv']/text()"
+            ).get()
             item["metascore"] = movie.css(
                 ".ratings-metascore span.metascore::text"
             ).get()

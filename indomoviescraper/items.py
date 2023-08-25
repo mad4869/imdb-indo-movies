@@ -18,5 +18,6 @@ class IndomoviescraperItem(scrapy.Item):
     stars = scrapy.Field()
     rating = scrapy.Field()
     imdb_score = scrapy.Field()
+    imdb_votes = scrapy.Field()
     metascore = scrapy.Field()
     gross = scrapy.Field()
