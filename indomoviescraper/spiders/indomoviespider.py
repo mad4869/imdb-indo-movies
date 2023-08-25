@@ -20,12 +20,13 @@ class IndomovieSpider(scrapy.Spider):
                 ".//p[contains(text(), 'Director') or contains(text(), 'Stars')]/preceding-sibling::p[1]/text()"
             ).get()
             item["director"] = movie.xpath(
-                ".//p[contains(text(), 'Director')]/a/text()"
-            ).get()
+                ".//p[contains(text(), 'Director')]/a[following-sibling::span[@class='ghost']]/text()"
+            ).getall()
 
             if item["director"]:
+                director_count = len(item["director"])
                 item["stars"] = movie.xpath(
-                    ".//p[contains(text(), 'Director')]/a[position() > 1]/text()"
+                    f".//p[contains(text(), 'Director')]/a[position() > {director_count}]/text()"
                 ).getall()
             else:
                 item["stars"] = movie.xpath(
